@@ -2,10 +2,12 @@
     <section>
         <h3>Personal</h3>
         <div>
-            <button class="btn btn-sm btn-outline-primary">
-                <i class="fa fa-plus"></i>
-                Agregar 
-            </button>
+            <RouterLink :to="{path: '/personal/agregar'}">
+                <button class="btn btn-sm btn-outline-primary">
+                    <i class="fa fa-plus"></i>
+                    Agregar 
+                </button>
+            </RouterLink>
         </div>    
     </section>
 
@@ -17,11 +19,12 @@
                 <th>Direccion</th>
                 <th>Telefono</th>
                 <th>Estatus</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             <tr v-if="personal.length === 0 || personal.length === undefined">
-                <td class="centrado" colspan="5">No hay registros</td>
+                <td class="centrado" colspan="6">No hay registros</td>
             </tr>
             <tr v-else v-for="(persona, index) in personal" :key="index">
                 <td>{{ persona.id }}</td>
@@ -29,6 +32,16 @@
                 <td>{{ persona.direccion }}</td>
                 <td>{{ persona.telefono }}</td>
                 <td>{{ persona.estatus }}</td>
+                <td class="text-center">
+                    <div class="btn-group" role="group" aria-label="Basic outlined example">
+                        <button type="button" class="btn btn-sm btn-outline-primary">
+                            <RouterLink class="nav-link item" :to="{path: '/personal/'+ persona.id + '/editar'}"><i class="fa fa-pencil"></i></RouterLink>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger">
+                            <RouterLink class="nav-link item" :to="{path: '/personal/'+ persona.id + '/borrar'}"><i class="fa fa-trash"></i></RouterLink>
+                        </button>
+                    </div>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -47,9 +60,6 @@ onMounted(async () => {
     if(personal.value.length === 0 || personal.value.length === undefined){
         notify();
     }
-    if(personal.value.length ===1){
-        notifyOne();
-    }
 });
 
 
@@ -58,13 +68,6 @@ const notify = ()=>{
         autoClose : 2000,
         position: "top-right",
     });
-}
-
-const notifyOne = ()=>{
-    toast.info(`[ ${personal.value.length} ] Registro encontrado`,{
-        autoClose: 2000,
-        position: "top-right"
-    })
 }
 
 watch(personal, (newVal)=>{

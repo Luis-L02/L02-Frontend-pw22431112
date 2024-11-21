@@ -3,5 +3,7 @@ export interface Personal {
     nombre: string,
     direccion: string,
     telefono: string,
-    estatus: number
+    estatus: string
 }
+
+export type PersonalAgregar =  Omit<Personal, 'id'>;
