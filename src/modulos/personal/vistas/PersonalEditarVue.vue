@@ -1,42 +1,57 @@
 <script lang="ts" setup>
 import { onMounted, ref , watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { usePersonal } from '../controladores/usePersonal';
-import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
+import { errorToast, sucessToast } from '@/modulos/utils/displayToast';
 const {getPersonalById , updatePersonal , mensaje, personal} = usePersonal();
 
-    let idPersona = 0;
-    const route = useRoute();
+let idPersona = 0;
+const route = useRoute();
 
-    onMounted(async () => {
-        idPersona = Number(route.params.id);
-        await getPersonalById(Number(idPersona));
-    });
+onMounted(async () => {
+    idPersona = Number(route.params.id);
+    await getPersonalById(Number(idPersona));
+});
 
-    const showErrorToast = () => {
-        if (mensaje.value && mensaje.value[0] !== 'Personal actualizado con éxito') {
-            toast.error('No se puede ingresar este personal', {
-                autoClose: 3000,
-                position: toast.POSITION.TOP_RIGHT
-            });
-        }
-    };
+const showErrorToast = () => {
+    if (mensaje.value && mensaje.value[0] !== 'Personal actualizado con éxito') {
+        errorToast('No se puede actualizar este personal');
+    }
+};
 
-    const showSuccessToast = () => {
-        if (mensaje.value && mensaje.value[0] === 'Personal actualizado con éxito') {
-            toast.success('Personal actualizado con éxito', {
-                autoClose: 3000,
-                position: toast.POSITION.TOP_RIGHT
-            });
-        }
-    };
+const showSuccessToast = () => {
+    if (mensaje.value && mensaje.value[0] === 'Personal actualizado con éxito') {
+        sucessToast('Personal actualizado con éxito');
+    }
+};
 
-    watch(mensaje, () => {
-        showErrorToast();
-        showSuccessToast();
+watch(mensaje, () => {
+    showErrorToast();
+    showSuccessToast();
+});
 
-    });
+const router = useRouter();
+
+const disableButton = ref(false);
+const tiempo = ref(3);
+
+watch(mensaje, () => {
+    timerRedirect();
+});
+
+const timerRedirect = () => {
+    if (mensaje.value && mensaje.value[0] === 'Personal actualizado con éxito') {
+        disableButton.value = true;
+        const interval = setInterval(() => {
+            if (tiempo.value > 0) {
+                tiempo.value -= 1;
+            } else {
+                clearInterval(interval);
+                router.push('/personal');
+            }
+        }, 1000);
+    }
+};
 
 </script>
 
@@ -74,7 +89,8 @@ const {getPersonalById , updatePersonal , mensaje, personal} = usePersonal();
                     <input type="text" class="form-control" v-model="personal[0].estatus" placeholder="Estatus">
                 </div>
                 <div class="mb-3">
-                    <button class="btn btn-warning" @click="updatePersonal(personal[0])">Actualizar</button>
+                    <button class="btn btn-warning" @click="updatePersonal(personal[0])" :disabled="disableButton">Actualizar</button>
+                    <p v-if="disableButton">Redirigiendo en {{ tiempo }}...</p>
                 </div>
             </div>
         </div>    
