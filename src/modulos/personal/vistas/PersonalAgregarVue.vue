@@ -2,8 +2,7 @@
 import { ref , watch } from 'vue';
 import type { PersonalAgregar } from '../interfaces/personal-interface';
 import { usePersonal } from '../controladores/usePersonal';
-import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
+import { errorToast, sucessToast } from '@/modulos/utils/displayToast';
 const {setPersonal, mensaje} = usePersonal();
 
     let personal = ref<PersonalAgregar>({
@@ -13,29 +12,32 @@ const {setPersonal, mensaje} = usePersonal();
         estatus: '0'
         });
     
-
-
     const showErrorToast = () => {
         if (mensaje.value && mensaje.value[0] !== 'Personal agregado con éxito') {
-            toast.error('No se puede ingresar este personal', {
-                autoClose: 3000,
-                position: toast.POSITION.TOP_RIGHT
-            });
+            errorToast('No se puede ingresar este personal')
         }
     };
 
     const showSuccessToast = () => {
         if (mensaje.value && mensaje.value[0] === 'Personal agregado con éxito') {
-            toast.success('Personal agregado correctamente', {
-                autoClose: 3000,
-                position: toast.POSITION.TOP_RIGHT
-            });
+            sucessToast('Personal agregado correctamente')
         }
     };
 
     watch(mensaje, () => {
         showErrorToast();
         showSuccessToast();
+    });
+
+    watch(mensaje, () => {
+        if (mensaje.value && mensaje.value[0] === 'Personal agregado con éxito') {
+            personal.value = {
+                nombre: '',
+                direccion: '',
+                telefono: '',
+                estatus: '0'
+            };
+        }
     });
 
 </script>
