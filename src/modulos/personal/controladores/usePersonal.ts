@@ -16,37 +16,67 @@ export const usePersonal = () => {
     let mensaje = ref<string[]>([]); // inicializando mensaje con ref para mostrarlo en la vista
 
     const getPersonal = async () => {
-        const response = await personalAPI.get<Personal[]>('') 
-        personal.value = response.data; 
+        try {
+            const response = await personalAPI.get<Personal[]>('') 
+            personal.value = response.data; 
+        } catch (error) {
+            mensaje.value = ['No fue posible conectarse con el servidor'];
+        }
     }; 
 
     const setPersonal = async (personal:PersonalAgregar) => {
-        const response = await personalAPI.post('/', personal)
-        if (response.data.error) {
-            let {error} = response.data;
-            mensaje.value = error.issues.map((issue: { message: string }) => issue.message);
-        }else{mensaje.value = ['Personal agregado con éxito'];}
+        try {
+            const response = await personalAPI.post('/', personal)
+
+            if (response.data.error) {
+                let {error} = response.data;
+                mensaje.value = error.issues.map((issue: { message: string }) => issue.message);
+            } else {
+                mensaje.value = ['Personal agregado con éxito'];
+            }
+
+        } catch (error) {
+            mensaje.value = ['No fue posible conectarse con el servidor'];
+        }
     }
 
     const getPersonalById = async (id:number) => {
-        const response = await personalAPI.get<Personal[]>(`/${id}`)
-        personal.value= response.data;
+        try{
+            const response = await personalAPI.get<Personal[]>(`/${id}`)
+            personal.value= response.data;
+        }catch(error){
+            mensaje.value = ['No fue posible conectarse con el servidor'];
+        }
     }
 
     const updatePersonal = async (personal:Personal) => {
-        const response = await personalAPI.put(`/`, personal)
-        if (response.data.error) {
-            let {error} = response.data;
-            mensaje.value = error.issues.map((issue: { message: string }) => issue.message); 
-        }else{mensaje.value = ['Personal actualizado con éxito'];}
+        try {
+            const response = await personalAPI.put(`/`, personal)
+
+            if (response.data.error) {
+                let {error} = response.data;
+                mensaje.value = error.issues.map((issue: { message: string }) => issue.message); 
+            }else{mensaje.value = ['Personal actualizado con éxito'];}
+
+        } catch (error) {
+            mensaje.value = ['No fue posible conectarse con el servidor'];
+        }
+
     }
 
     const deletePersonal = async (personal:Personal) => {
-        const response = await personalAPI.delete('/', {data:{id:personal.id}})
-        if (response.data.error) {
-            let {error} = response.data;
-            mensaje.value = error.issues.map((issue: { message: string }) => issue.message); 
-        }else{mensaje.value = ['Personal eliminado'];}
+        try {
+            const response = await personalAPI.delete('/', {data:{id:personal.id}})
+
+            if (response.data.error) {
+                let {error} = response.data;
+                mensaje.value = error.issues.map((issue: { message: string }) => issue.message); 
+            }else{mensaje.value = ['Personal eliminado'];}
+
+        }catch(error){
+            mensaje.value = ['No fue posible conectarse con el servidor'];
+        }
+
     }
 
     return {
